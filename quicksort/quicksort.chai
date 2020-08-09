@@ -1,0 +1,115 @@
+/*
+
+  quicksort.chai
+
+  Quicksort Example for Chaiscript
+  Copyright (C) 2020  olikraus@gmail.com
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  
+*/
+
+def swap(Vector v, int a, int b)
+{
+  var e := v[a];
+  v[a] := v[b];
+  v[b] := e;
+}
+
+def partition(Vector v, int lo, int hi, Function is_lower_than)
+{
+  var i = lo;
+  var j;
+  
+  // the "hi" element is used as pivot/reference element by default.
+  // in the first step, we try to get a better value for the pivot element 
+  // do this only if the distance is huge enough
+  
+  if ( hi - lo > 3 )
+  {
+    var mid  = int((lo+hi)/2);
+    if ( is_lower_than(v[mid], v[lo]) )
+    {
+      swap(v, mid, lo);
+    }
+    if ( is_lower_than(v[hi], v[lo]) )
+    {
+      swap(v, hi, lo);
+    }
+    if ( is_lower_than(v[mid], v[hi]) )
+    {
+      swap(v, mid, hi);
+    }
+  }
+  
+  // now start the partitioning
+  for( j = lo; j < hi; ++j )
+  {
+    if ( is_lower_than(v[j], v[hi]) )
+    {
+      swap(v, i, j);
+      ++i;
+    }
+  }
+  
+  // finally move the pivot element into the correct position
+  swap(v, i, hi);
+  return i;
+}
+
+def quicksort(Vector v, int lo, int hi, Function is_lower_than)
+{
+  if ( lo < hi )
+  {
+    var p = partition(v, lo, hi, is_lower_than);
+    quicksort(v, lo, p-1, is_lower_than);
+    quicksort(v, p+1, hi, is_lower_than);
+  }
+}
+
+def sort(Vector v, Function is_lower_than)
+{
+  quicksort(v, 0, v.size()-1,  is_lower_than);
+}
+
+
+//=====================================
+// test for the quicksort algoirthm
+
+global a = uint64_t(6364136223846793005);
+global x = uint64_t(1234567891234567891);
+global c = uint64_t(1442695040888963407);
+
+def lcg()
+{
+  x = a*x+c;
+  return x;
+}
+
+
+var v = Vector();
+var i;
+v.clear();
+for( i = 0; i < 800; ++i)
+{
+  v.push_back(lcg() % 1024 );
+}
+//print(v);
+sort(v, fun(a,b) { return a < b; } );
+//print(v);
+//sort(v, fun(a,b) { return a < b; } );
+print(v);
+
+
+
